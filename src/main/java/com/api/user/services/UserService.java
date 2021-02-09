@@ -4,6 +4,7 @@ import java.util.List;
 
 
 import com.api.user.domain.User;
+import com.api.user.exception.BadRequestException;
 import com.api.user.repositores.UserRepository;
 import com.api.user.requests.UserPostRequestBody;
 import com.api.user.requests.UserPutRequestBody;
@@ -26,7 +27,7 @@ public class UserService  {
 
     public User findByIdOrThrowBadRequestException(Long id){
         return  userRepository.findById(id)
-        .orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+        .orElseThrow(()-> new BadRequestException("User not found"));
     }
 
     public List<User> findByName(String name){
