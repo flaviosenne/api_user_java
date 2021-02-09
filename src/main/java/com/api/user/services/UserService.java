@@ -29,25 +29,29 @@ public class UserService  {
         .orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
     }
 
+    public List<User> findByName(String name){
+        List<User> users = userRepository.findByName(name);
+        return users;
+    }
+
     public User save(UserPostRequestBody user){
         return userRepository.save(User.builder()
-            .name(user.getName())
-            .email(user.getEmail())
-            .password(user.getPassword()).build());      
-         
+                .name(user.getName())
+                .email(user.getEmail())
+                .password(user.getPassword()).build());
     }
 
     public void delete(Long id){
         userRepository.delete(this.findByIdOrThrowBadRequestException(id));
     }
+
     public void release(Long id, UserPutRequestBody user){
         User userExist = this.findByIdOrThrowBadRequestException(id);
-        
         userRepository.save(User.builder()
-            .id(userExist.getId())
-            .name(userExist.getName())
-            .email(userExist.getEmail())
-            .password(userExist.getPassword()).build());
+                .id(userExist.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .password(user.getPassword()).build());
 
     }
 
