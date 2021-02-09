@@ -1,47 +1,53 @@
 package com.api.user.services;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+
 
 import com.api.user.domain.User;
+import com.api.user.repositores.UserRepository;
+import com.api.user.requests.UserPostRequestBody;
+import com.api.user.requests.UserPutRequestBody;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserService  {
-    // private final UserRepository userRepository;
-    private static List<User> users;
     
-    static {
-        users = new ArrayList<>(List.of(new User(1L, "joao", "joao@email", "1234"), new User
-        (2L, "joao flavio", "joao@email", "1234")));
-    }
+    private final UserRepository userRepository;
+    
     public List<User> listAll(){
-        return users;
+        return userRepository.findAll();
     }
 
-    public User findById(Long id){
-        return users.stream()
-        .filter(user -> user.getId().equals(id))
-        .findFirst().orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
+    public User findByIdOrThrowBadRequestException(Long id){
+        return  userRepository.findById(id)
+        .orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
     }
 
-    public User save(User user){
-        user.setId(ThreadLocalRandom.current().nextLong(3, 100000));
-        users.add(user);
-        return user;
+    public User save(UserPostRequestBody user){
+        return userRepository.save(User.builder()
+            .name(user.getName())
+            .email(user.getEmail())
+            .password(user.getPassword()).build());      
+         
     }
 
     public void delete(Long id){
-        users.remove(this.findById(id));
+        userRepository.delete(this.findByIdOrThrowBadRequestException(id));
     }
-    public void release(Long id, User user){
-        this.delete(id);
-        user.setId(id);
-        users.add(user);
+    public void release(Long id, UserPutRequestBody user){
+        User userExist = this.findByIdOrThrowBadRequestException(id);
+        
+        userRepository.save(User.builder()
+            .id(userExist.getId())
+            .name(userExist.getName())
+            .email(userExist.getEmail())
+            .password(userExist.getPassword()).build());
 
     }
 

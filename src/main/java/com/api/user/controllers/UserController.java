@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.api.user.domain.User;
+import com.api.user.requests.UserPostRequestBody;
+import com.api.user.requests.UserPutRequestBody;
 import com.api.user.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +45,11 @@ public class UserController {
     @GetMapping(path = "/{id}")
     public ResponseEntity<User> listById(@PathVariable Long id){
         log.info(this.dateUtil.formatLocalDateTimeToDatabaseStyle(LocalDateTime.now()));
-        return ResponseEntity.ok(this.userService.findById(id));
+        return ResponseEntity.ok(this.userService.findByIdOrThrowBadRequestException(id));
     }
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user){
+    public ResponseEntity<User> create(@RequestBody UserPostRequestBody user){
         return ResponseEntity.status(201).body(userService.save(user));
     }
 
@@ -58,7 +60,7 @@ public class UserController {
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<Void> update(@PathVariable Long id,  @RequestBody User user){
+    public ResponseEntity<Void> update(@PathVariable Long id,  @RequestBody UserPutRequestBody user){
         userService.release(id, user);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
